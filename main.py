@@ -46,7 +46,7 @@ class MyWindow(QWidget):
         #to get only audio use
         self.audio = self.yt.streams.filter(only_audio=True).all()
         for x in self.audio:
-            print(x) 
+            print(x)
 
 app = QApplication(sys.argv)
 main = MyWindow()
