@@ -36,8 +36,7 @@ class MyWindow(QWidget):
         self.show()
 
     def getVideo(self):
-        self.link = "https://www.youtube.com/watch?v=PTpgUmIWPis"
-        self.yt = pytube.YouTube(self.link)
+        self.yt = pytube.YouTube(self.yt_url.text())
         print('Video')
         self.videos = self.yt.streams.all()
         for x in self.videos:
