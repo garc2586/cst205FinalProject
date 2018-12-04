@@ -10,8 +10,6 @@ class MyWindow(QWidget):
 
         super().__init__()
 
-        self.pytubeCallThread = pytubeCallThread()
-
         hbox1 = QHBoxLayout()
         self.label1 = QLabel('Enter url: ')
         self.yt_url = QLineEdit()
@@ -47,19 +45,24 @@ class MyWindow(QWidget):
         self.show()
 
     def getVideo(self):
+        self.pytubeCallThread = pytubeCallThread(self.yt_url.text())
         self.status_txt.setHidden(False)
-        self.pytubeCallThread.start(self.yt_url.text())
+        self.pytubeCallThread.start()
+        self.pytubeCallThread.finished.connect(self.hideLoading)
+    def hideLoading(self):
+        self.status_txt.setHidden(True)
 
 class pytubeCallThread(QThread):
 
-    def __init__(self):
+    def __init__(self, url):
         QThread.__init__(self)
+        self.url = url
 
     def __del__(self):
         self.wait()
 
-    def run(self, url):
-        self.yt = pytube.YouTube(url)
+    def run(self):
+        self.yt = pytube.YouTube(self.url)
         print('Video')
         self.videos = self.yt.streams.all()
         for x in self.videos:
@@ -68,13 +71,7 @@ class pytubeCallThread(QThread):
         #get only audio 
         self.audio = self.yt.streams.filter(only_audio=True).all()
         for x in self.audio:
-<<<<<<< HEAD
-            print(x) 
-        self.status_txt.setHidden(True)
-
-=======
             print(x)
->>>>>>> bdb6829aa8874d51695c8fca9749005f13bd96fe
 
 app = QApplication(sys.argv)
 main = MyWindow()
