@@ -68,9 +68,13 @@ class pytubeCallThread(QThread):
         #get only audio 
         self.audio = self.yt.streams.filter(only_audio=True).all()
         for x in self.audio:
+<<<<<<< HEAD
             print(x) 
         self.status_txt.setHidden(True)
 
+=======
+            print(x)
+>>>>>>> bdb6829aa8874d51695c8fca9749005f13bd96fe
 
 app = QApplication(sys.argv)
 main = MyWindow()
