@@ -39,6 +39,11 @@ class MyWindow(QWidget):
         self.status_txt.setHidden(True)
         hbox1.layout().addWidget(self.status_txt)
 
+        self.loading_label =  QLabel()
+        self.loading_label.setText("Loading")
+        self.loading_label.setHidden(True)
+        hbox1.layout().addWidget(self.loading_label)
+
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
@@ -47,10 +52,12 @@ class MyWindow(QWidget):
     def getVideo(self):
         self.pytubeCallThread = pytubeCallThread(self.yt_url.text())
         self.status_txt.setHidden(False)
+        self.loading_label.setHidden(False)
         self.pytubeCallThread.start()
         self.pytubeCallThread.finished.connect(self.hideLoading)
     def hideLoading(self):
         self.status_txt.setHidden(True)
+        self.loading_label.setHidden(True)
 
 class pytubeCallThread(QThread):
 
