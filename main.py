@@ -1,4 +1,5 @@
 import sys, pytube
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QPushButton,
                                 QLineEdit, QHBoxLayout, QVBoxLayout, QComboBox)
 from PyQt5.QtGui import QMovie
@@ -50,17 +51,33 @@ class MyWindow(QWidget):
         self.show()
 
     def getVideo(self):
+        #set up thread to get video and pass url
         self.pytubeCallThread = pytubeCallThread(self.yt_url.text())
+        self.pytubeCallThread.videos_signal.connect(self.finishedLoading)
+        #show loading gif and text
         self.status_txt.setHidden(False)
         self.loading_label.setHidden(False)
+
+        #start thread
         self.pytubeCallThread.start()
-        self.pytubeCallThread.finished.connect(self.hideLoading)
-    def hideLoading(self):
+
+        #hide loading gif/text when thread is done
+        self.pytubeCallThread.finished.connect(self.finishedLoading)
+
+    def finishedLoading(self, videos_list = ''):
         self.status_txt.setHidden(True)
         self.loading_label.setHidden(True)
+        print('Finished loading')
+
+        for x in videos_list:
+            print(x)
+
+
+
 
 class pytubeCallThread(QThread):
 
+    videos_signal = QtCore.pyqtSignal(list)
     def __init__(self, url):
         QThread.__init__(self)
         self.url = url
@@ -70,15 +87,11 @@ class pytubeCallThread(QThread):
 
     def run(self):
         self.yt = pytube.YouTube(self.url)
-        print('Video')
+        print('Got the Videos')
         self.videos = self.yt.streams.all()
-        for x in self.videos:
-            print(x)
-        print('Audio')
-        #get only audio 
-        self.audio = self.yt.streams.filter(only_audio=True).all()
-        for x in self.audio:
-            print(x)
+
+        #emit signal with video list
+        self.videos_signal.emit(self.videos)
 
 app = QApplication(sys.argv)
 main = MyWindow()
