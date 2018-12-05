@@ -11,26 +11,30 @@ class MyWindow(QWidget):
 
         super().__init__()
 
+        #vertical box layout
+        vbox = QVBoxLayout()
+
+        #horizontal box layouts
         hbox1 = QHBoxLayout()
+        hbox_loading = QHBoxLayout()
+
+        #url input
         self.label1 = QLabel('Enter url: ')
         self.yt_url = QLineEdit()
-
         hbox1.addWidget(self.label1)
         hbox1.addWidget(self.yt_url)
 
+        #search button
         self.button = QPushButton('Search', self)
         hbox1.addWidget(self.button)
 
-        #call function to get video info
+        #call function to get video info when search button pressed
         self.button.clicked.connect(self.getVideo)
 
-        self.setLayout(hbox1)
-        self.title = 'Audio/Video Downloader'
-        self.left = 300
-        self.top = 300
-        self.width = 500
-        self.height = 300
-        self.initUI()
+        #drop down box
+        self.dropDown = QComboBox(self)
+        hbox_loading.addWidget(self.dropDown)
+        self.dropDown.setHidden(True)
 
         #loading gif
         self.status_txt = QLabel()
@@ -38,12 +42,25 @@ class MyWindow(QWidget):
         self.status_txt.setMovie(movie)
         movie.start()
         self.status_txt.setHidden(True)
-        hbox1.layout().addWidget(self.status_txt)
-
+        hbox_loading.addWidget(self.status_txt)
+        #loading label in case loading gif doesent load
         self.loading_label =  QLabel()
         self.loading_label.setText("Loading")
         self.loading_label.setHidden(True)
-        hbox1.layout().addWidget(self.loading_label)
+        hbox_loading.addWidget(self.loading_label)
+
+        #add vertical layouts to horisontal layout
+        vbox.addLayout(hbox1)
+        vbox.addLayout(hbox_loading)
+
+        #define UI layout and window size
+        self.setLayout(vbox)
+        self.title = 'Audio/Video Downloader'
+        self.left = 300
+        self.top = 300
+        self.width = 500
+        self.height = 300
+        self.initUI()
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -68,12 +85,12 @@ class MyWindow(QWidget):
         self.status_txt.setHidden(True)
         self.loading_label.setHidden(True)
         print('Finished loading')
-
         for x in videos_list:
-            print(x)
-
-
-
+            if x.type == 'video':
+                self.dropDown.addItem(f'{x.type}: {x.subtype}\tresolution: {x.resolution}')
+            else:
+                self.dropDown.addItem(f'{x.type} bitrate: {x.bitrate}')
+        self.dropDown.setHidden(False)
 
 class pytubeCallThread(QThread):
 
