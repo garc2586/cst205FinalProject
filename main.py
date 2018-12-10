@@ -33,6 +33,7 @@ class MyWindow(QWidget):
         self.button1 = QPushButton('Save as', self)
         hbox1.addWidget(self.button1)
 
+        #call save function when save button clicked
         self.button1.clicked.connect(self.save)
         #call function to get video info when search button pressed
         self.button.clicked.connect(self.getVideo)
@@ -103,8 +104,10 @@ class MyWindow(QWidget):
         for x in videos_list:
             print(x)
 
+    #fucntion when we want to save a file
     def save(self):
-        self.App()
+        newSaveWindow = SaveWindow()
+        newSaveWindow.show()
 
 class pytubeCallThread(QThread):
 
@@ -124,7 +127,7 @@ class pytubeCallThread(QThread):
         #emit signal with video list
         self.videos_signal.emit(self.videos)
 
-class App(QWidget):
+class SaveWindow(QWidget):
 
     def __init__(self):
         super().__init__()
@@ -139,25 +142,25 @@ class App(QWidget):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
-        self.openFileNameDialog()
-        self.openFileNamesDialog()
+        #self.openFileNameDialog()
+        #self.openFileNamesDialog()
         self.saveFileDialog()
 
         self.show()
 
-    def openFileNameDialog(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","All Files (*);;Python Files (*.py)", options=options)
-        if fileName:
-            print(fileName)
+    # def openFileNameDialog(self):
+    #     options = QFileDialog.Options()
+    #     options |= QFileDialog.DontUseNativeDialog
+    #     fileName, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","All Files (*);;Python Files (*.py)", options=options)
+    #     if fileName:
+    #         print(fileName)
 
-    def openFileNamesDialog(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        files, _ = QFileDialog.getOpenFileNames(self,"QFileDialog.getOpenFileNames()", "","All Files (*);;Python Files (*.py)", options=options)
-        if files:
-            print(files)
+    # def openFileNamesDialog(self):
+    #     options = QFileDialog.Options()
+    #     options |= QFileDialog.DontUseNativeDialog
+    #     files, _ = QFileDialog.getOpenFileNames(self,"QFileDialog.getOpenFileNames()", "","All Files (*);;Python Files (*.py)", options=options)
+    #     if files:
+    #         print(files)
 
     def saveFileDialog(self):
         options = QFileDialog.Options()
