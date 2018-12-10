@@ -62,11 +62,13 @@ class MyWindow(QWidget):
         self.height = 300
         self.initUI()
 
+    #starts up the UI
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.show()
 
+    #called when the search button is pressed
     def getVideo(self):
         #set up thread to get video and pass url
         self.pytubeCallThread = pytubeCallThread(self.yt_url.text())
@@ -89,8 +91,11 @@ class MyWindow(QWidget):
             if x.type == 'video':
                 self.dropDown.addItem(f'{x.type}: {x.subtype}\tresolution: {x.resolution}')
             else:
-                self.dropDown.addItem(f'{x.type} bitrate: {x.bitrate}')
+                self.dropDown.addItem(f'{x.type} bitrate: {x.abr}')
         self.dropDown.setHidden(False)
+
+        for x in videos_list:
+            print(x)
 
 class pytubeCallThread(QThread):
 
