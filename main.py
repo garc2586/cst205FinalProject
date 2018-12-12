@@ -29,19 +29,20 @@ class MyWindow(QWidget):
         self.button = QPushButton('Search', self)
         hbox1.addWidget(self.button)
 
+        #drop down box
+        self.dropDown = QComboBox(self)
+        hbox_loading.addWidget(self.dropDown)
+        self.dropDown.setHidden(True)
+
         #save as Button
         self.button1 = QPushButton('Save as', self)
-        hbox1.addWidget(self.button1)
+        hbox_loading.addWidget(self.button1)
+        self.button1.setHidden(True)
 
         #call save function when save button clicked
         self.button1.clicked.connect(self.save)
         #call function to get video info when search button pressed
         self.button.clicked.connect(self.getVideo)
-
-        #drop down box
-        self.dropDown = QComboBox(self)
-        hbox_loading.addWidget(self.dropDown)
-        self.dropDown.setHidden(True)
 
         #loading gif
         self.status_txt = QLabel()
@@ -88,29 +89,39 @@ class MyWindow(QWidget):
         self.pytubeCallThread.start()
 
         #hide loading gif/text when thread is done
-        self.pytubeCallThread.finished.connect(self.finishedLoading)
+        self.pytubeCallThread.finished.connect(self.hideLoadingGif)
 
-    def finishedLoading(self, videos_list = ''):
+
+    def hideLoadingGif(self):
         self.status_txt.setHidden(True)
         self.loading_label.setHidden(True)
+        self.button1.setHidden(False)
+
+    def finishedLoading(self, videos_list = ''):
+        self.videos_list = videos_list
+        self.itags = []
         print('Finished loading')
+
         for x in videos_list:
             if x.type == 'video':
                 self.dropDown.addItem(f'{x.type}: {x.subtype}\tresolution: {x.resolution}')
             else:
                 self.dropDown.addItem(f'{x.type} bitrate: {x.abr}')
+            self.itags.append(x.itag)
         self.dropDown.setHidden(False)
 
         for x in videos_list:
             print(x)
 
     #fucntion when we want to save a file
+        print('current index: '+ str(self.dropDown.currentIndex()))
+        print('current size of itags'+str(len(self.itags)))
     def save(self):
-        newSaveWindow = SaveWindow()
+        newSaveWindow = SaveWindow(self.dropDown.currentIndex(), self.videos_list)
         newSaveWindow.show()
 
 class pytubeCallThread(QThread):
-
+    #signal that emits when the videos list are obtained
     videos_signal = QtCore.pyqtSignal(list)
     def __init__(self, url):
         QThread.__init__(self)
@@ -127,9 +138,12 @@ class pytubeCallThread(QThread):
         #emit signal with video list
         self.videos_signal.emit(self.videos)
 
+#window that opens to let users choose save location
 class SaveWindow(QWidget):
 
-    def __init__(self):
+    def __init__(self, pytube_index, videos_list):
+        self.pytube_index = pytube_index
+        self.videos_list = videos_list
         super().__init__()
         self.title = 'PyQt5 file dialogs - pythonspot.com'
         self.left = 10
@@ -141,33 +155,28 @@ class SaveWindow(QWidget):
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-
-        #self.openFileNameDialog()
-        #self.openFileNamesDialog()
         self.saveFileDialog()
-
         self.show()
-
-    # def openFileNameDialog(self):
-    #     options = QFileDialog.Options()
-    #     options |= QFileDialog.DontUseNativeDialog
-    #     fileName, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","All Files (*);;Python Files (*.py)", options=options)
-    #     if fileName:
-    #         print(fileName)
-
-    # def openFileNamesDialog(self):
-    #     options = QFileDialog.Options()
-    #     options |= QFileDialog.DontUseNativeDialog
-    #     files, _ = QFileDialog.getOpenFileNames(self,"QFileDialog.getOpenFileNames()", "","All Files (*);;Python Files (*.py)", options=options)
-    #     if files:
-    #         print(files)
 
     def saveFileDialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(self,"QFileDialog.getSaveFileName()","","All Files (*);;Text Files (*.txt)", options=options)
+        fileName, _ = QFileDialog.getSaveFileName(self,"Save Location","","All Files (*);;Text Files (*.txt)", options=options)
         if fileName:
             print(fileName)
+
+        print(self.pytube_index)
+        #splits file location and name by / so that the program can separate save path and file name
+        split_fileName = fileName.split('/')
+        #last_word is the name of the file
+        last_word = split_fileName[-1]
+        #out path is the path where the file will be saved
+        out_path = fileName[0: len(fileName) - len(last_word)]
+        #temp: to check if this worked
+        print(f"...{out_path}...")
+        print(f"...{last_word}...")
+        #using pytube download function to define output path and filename
+        self.videos_list[self.pytube_index].download(output_path = out_path, filename = last_word)
 
 app = QApplication(sys.argv)
 main = MyWindow()
