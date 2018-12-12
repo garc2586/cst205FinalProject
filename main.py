@@ -1,4 +1,6 @@
 import sys, pytube
+import cv2
+import numpy as np
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QPushButton,
                                 QLineEdit, QHBoxLayout, QVBoxLayout, QComboBox,
@@ -7,6 +9,8 @@ from PyQt5.QtGui import QMovie, QIcon
 from PyQt5.QtCore import pyqtSlot, QThread
 
 
+#used for filters
+filters = [ "Choose Filter: sepia", "negative", "grayscale", "flip video"]
 class MyWindow(QWidget):
     def __init__(self):
 
@@ -34,19 +38,31 @@ class MyWindow(QWidget):
         hbox_loading.addWidget(self.dropDown)
         self.dropDown.setHidden(True)
 
+        #filter box
+        self.filter_box = QComboBox()
+        self.filter_box.addItems(filters)
+        self.filter_box.setHidden(True)
+        hbox_loading.addWidget(self.filter_box)
+
         #save as Button
         self.button1 = QPushButton('Save as', self)
         hbox_loading.addWidget(self.button1)
         self.button1.setHidden(True)
 
+        # run button for filters
+        self.button2 = QPushButton('Run', self)
+        hbox1.addWidget(self.button2)
+
         #call save function when save button clicked
         self.button1.clicked.connect(self.save)
         #call function to get video info when search button pressed
         self.button.clicked.connect(self.getVideo)
+        #call run button when filter is chosen
+        #self.button.clicked.connect(self.filters_use)
 
         #loading gif
         self.status_txt = QLabel()
-        movie = QMovie("C:/Users/cgarc/Desktop/cst205/205git/cst205FinalProject/ajax-loader.gif")
+        movie = QMovie("/cst205FinalProject/ajax-loader.gif")
         self.status_txt.setMovie(movie)
         movie.start()
         self.status_txt.setHidden(True)
@@ -109,6 +125,7 @@ class MyWindow(QWidget):
                 self.dropDown.addItem(f'{x.type} bitrate: {x.abr}')
             self.itags.append(x.itag)
         self.dropDown.setHidden(False)
+        self.filter_box.setHidden(False)
 
         for x in videos_list:
             print(x)
@@ -117,8 +134,25 @@ class MyWindow(QWidget):
         print('current index: '+ str(self.dropDown.currentIndex()))
         print('current size of itags'+str(len(self.itags)))
     def save(self):
-        newSaveWindow = SaveWindow(self.dropDown.currentIndex(), self.videos_list)
+        newSaveWindow = SaveWindow(self.dropDown.currentIndex(), self.video)
         newSaveWindow.show()
+#code to apply the filters
+    def filters_use(self):
+        if (self.filter_box.currentIndex() == 0 ):
+            self.sepia_list = map(lambda a : self.sepia(a) , self.video.getdata())
+            self.video.putdata(list(self.sepia_list))
+
+        elif(self.filter_box.currentIndex() == 1 ):
+            negative_list = map(lambda a : (255 - a[0], 255 - a[1], 255 - a[2]) , self.video.getdata())
+            self.video.putdata(list(negative_list))
+
+        elif (self.filter_box.currentIndex() == 2 ):
+            grayscale_list = map(lambda a : (int((a[0] + a[1] + a[2]) /3),)*3 , self.video.getdata())
+            self.video.putdata(list(grayscale_list))
+
+        elif (self.filter_box.currentIndex() == 3 ):
+            flip = self.video.rotate(180)
+
 
 class pytubeCallThread(QThread):
     #signal that emits when the videos list are obtained
