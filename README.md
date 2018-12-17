@@ -3,7 +3,7 @@
 # YouTube Video and Audio Downloader
 
 ## Authors
-Carlos Garcia
+Carlos Garcia,
 Adrian Ortiz
 
 ## Project Description
@@ -13,9 +13,16 @@ Design Notes
 ## Prerequisites
 Python 3.6.x
 modules:
-  pytube
-  pyqt5
+  pytube,
+  pyqt5,
   opencv-python
  
 ## Getting Started
-Onve the required modules are installed simply run the python programming.
+Once the required modules are installed simply run the python programming.
+
+"# cst205FinalProject" 
+"#This project is to let the users download some videos from youtube. It is some because if the video that you ar etrying to download is copyrighted, you will not be able to download it."
+"#First when you run the application, the GUI pops up, and you will paste the youtube url into the search bar"
+"#Then when you search it, a drop-down menu will pop-up with the choices you have to download, either video or audio files."
+"#After you choose the file, you may press save as and this will take you into a new window, where you choose where you are going to download it."
+"#After you do this, you will be able to go to the place where you saved it, and you will find the file you just downloaded"
