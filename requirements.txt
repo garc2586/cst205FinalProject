@@ -1,0 +1,7 @@
+required modules for this project:
+
+pytube
+
+pyqt5
+
+opencv-python
